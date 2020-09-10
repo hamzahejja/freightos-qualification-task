@@ -4,7 +4,7 @@ import core.SnackVendingMachine;
 import enumerations.Coin;
 import exception.InvalidEntryException;
 import exception.UnsupportedPayableTypeException;
-import core.Payable;
+import interfaces.Payable;
 
 import java.util.Arrays;
 import java.util.List;

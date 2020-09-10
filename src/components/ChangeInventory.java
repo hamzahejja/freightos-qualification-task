@@ -1,7 +1,7 @@
 package components;
 
 import exception.InsufficientChangeException;
-import core.Payable;
+import interfaces.Payable;
 
 import java.math.BigDecimal;
 import java.util.Comparator;

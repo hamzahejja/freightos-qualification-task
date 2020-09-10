@@ -1,6 +1,6 @@
 package enumerations;
 
-import core.Payable;
+import interfaces.Payable;
 
 import java.math.BigDecimal;
 

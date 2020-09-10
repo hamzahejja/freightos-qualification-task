@@ -2,7 +2,7 @@ package components;
 import core.SnackVendingMachine;
 import enumerations.Card;
 import exception.InvalidEntryException;
-import core.Payable;
+import interfaces.Payable;
 
 public class CardSlot extends MoneySlot {
     private final String INVALID_ENTRY_MESSAGE = "Error! Please Be Careful to Insert Cards ONLY in enumerations.Card Slot.";

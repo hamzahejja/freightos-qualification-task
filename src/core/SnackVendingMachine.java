@@ -7,6 +7,8 @@ import exception.CustomerRequestNotConfirmedException;
 import exception.InsufficientChangeException;
 import exception.ItemNotFullyPaidException;
 import exception.SnackSoldOutException;
+import interfaces.Payable;
+import interfaces.VendingMachine;
 import utils.Pair;
 import java.math.BigDecimal;
 import java.util.Map;

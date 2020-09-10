@@ -6,7 +6,7 @@ import core.SnackVendingMachine;
 import enumerations.*;
 import exception.*;
 import org.junit.*;
-import core.Payable;
+import interfaces.Payable;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Random;

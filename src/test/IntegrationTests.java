@@ -13,7 +13,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import utils.Pair;
-import core.Payable;
+import interfaces.Payable;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Map;

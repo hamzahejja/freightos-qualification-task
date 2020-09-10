@@ -3,7 +3,7 @@ package components;
 import core.SnackVendingMachine;
 import exception.InvalidEntryException;
 import exception.UnsupportedPayableTypeException;
-import core.Payable;
+import interfaces.Payable;
 
 public abstract class MoneySlot {
     protected SnackVendingMachine owner;

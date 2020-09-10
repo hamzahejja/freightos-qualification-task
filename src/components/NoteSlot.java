@@ -1,6 +1,6 @@
 package components;
 
-import core.Payable;
+import interfaces.Payable;
 import java.util.List;
 import java.util.Arrays;
 import enumerations.Note;
