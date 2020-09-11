@@ -79,10 +79,24 @@ public class ChangeInventory {
                 }
             }
 
+
             if (balance.compareTo(BigDecimal.ZERO) > 0) {
-                throw new InsufficientChangeException(
-                        ExceptionMessage.INSUFFICIENT_CHANGE_IN_INVENTORY.getMessage()
-                );
+                Payable payable = ALLOWED_PAYABLES.stream().filter(p -> {
+                    BigDecimal[] values = amount.divideAndRemainder(p.getWorth());
+                    return values[1].compareTo(BigDecimal.ZERO) == 0 &&
+                            this.getCountOfPayable(p) == values[0].intValue();
+                }).findFirst().orElse(null);
+
+                if (payable != null) {
+                    change.clear();
+                    change.put(payable, this.getCountOfPayable(payable));
+
+                    return change;
+                } else {
+                    throw new InsufficientChangeException(
+                            ExceptionMessage.INSUFFICIENT_CHANGE_IN_INVENTORY.getMessage()
+                    );
+                }
             }
         }
 
