@@ -1,5 +1,6 @@
 package components;
 
+import enumerations.ExceptionMessage;
 import exception.InsufficientChangeException;
 import interfaces.Payable;
 
@@ -79,7 +80,7 @@ public class ChangeInventory {
                 }
 
                 if (! flag) {
-                    throw new InsufficientChangeException("NotSufficientChange, Please try another product");
+                    throw new InsufficientChangeException(ExceptionMessage.INSUFFICIENT_CHANGE_IN_INVENTORY.getMessage());
                 }
             }
         }

@@ -1,6 +1,7 @@
 package core;
 
 import components.*;
+import enumerations.ExceptionMessage;
 import enumerations.MachineState;
 import enumerations.SnackItem;
 import exception.CustomerRequestNotConfirmedException;
@@ -204,9 +205,9 @@ public class SnackVendingMachine implements VendingMachine<SnackItem, SnackSlot>
         this.setCurrentlyOperatingState(MachineState.PROCESSING_CUSTOMER_SELECTION);
 
         if (! this.shouldStartProcessingRequest) {
-            throw new CustomerRequestNotConfirmedException("Sorry! Did you forget to Confirm Your Selection?");
+            throw new CustomerRequestNotConfirmedException(ExceptionMessage.CUSTOMER_REQUEST_NOT_CONFIRMED.getMessage());
         } else if (selectedSnackSlot.getQuantity() == 0) {
-            throw new SnackSoldOutException("SOLD OUT! Selected Snack Slot is out of items");
+            throw new SnackSoldOutException(ExceptionMessage.EMPTY_SNACK_SLOT.getMessage());
         }
 
         this.shouldStartProcessingRequest = false;
@@ -249,9 +250,9 @@ public class SnackVendingMachine implements VendingMachine<SnackItem, SnackSlot>
         SnackItem selectedSnackItem = this.currentlySelectedSnackSlot.getItem();
 
         if (! this.isSelectedItemFullyPaid()) {
-            throw new ItemNotFullyPaidException("Sorry! Selected Snack Item NOT FULLY PAID.");
+            throw new ItemNotFullyPaidException(ExceptionMessage.ITEM_NOT_FULLY_PAID.getMessage());
         } else if (! this.changeInventory.canProduceChangeForAmount(this.accumulatedMoney.subtract(selectedSnackItem.getPrice()))) {
-            throw new InsufficientChangeException("Insufficient Change! Try to select another snack item Please.");
+            throw new InsufficientChangeException(ExceptionMessage.INSUFFICIENT_CHANGE_IN_INVENTORY.getMessage());
         }
 
         this.currentlySelectedSnackSlot.dispenseSnackItem();

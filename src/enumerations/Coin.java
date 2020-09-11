@@ -15,7 +15,7 @@ public enum Coin implements Payable {
     private String name;
     private BigDecimal worth;
 
-    private Coin(String name, BigDecimal worth) {
+    Coin(String name, BigDecimal worth) {
         this.name = name;
         this.worth = worth;
     }

@@ -12,7 +12,7 @@ public enum SnackItem {
     private String name;
     private BigDecimal price;
 
-    private SnackItem(String name, BigDecimal price) {
+    SnackItem(String name, BigDecimal price) {
         this.name = name;
         this.price = price;
     }

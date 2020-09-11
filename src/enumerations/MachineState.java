@@ -9,7 +9,7 @@ public enum MachineState {
 
     private String description;
 
-    private MachineState(String description) {
+    MachineState(String description) {
         this.description = description;
     }
 

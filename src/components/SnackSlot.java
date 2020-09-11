@@ -1,5 +1,6 @@
 package components;
 
+import enumerations.ExceptionMessage;
 import enumerations.SnackItem;
 import exception.EmptySnackSlotException;
 import exception.FullSnackSlotException;
@@ -9,12 +10,7 @@ public class SnackSlot {
     private int quantity;
     private int capacity;
 
-    private final String FULL_SLOT_MESSAGE = "Sorry! Snack Slot is Full of Items.";
-    private final String EMPTY_SLOT_MESSAGE = "Snack Slot is Out of Items (i.e. EMPTY)";
-
-    public SnackSlot() {
-
-    }
+    public SnackSlot() { }
 
     public SnackSlot(SnackItem item, int quantity, int capacity) {
         this.item = item;
@@ -48,7 +44,7 @@ public class SnackSlot {
 
     public void addSnackItems(SnackItem... items) {
         if (this.quantity + items.length > this.capacity) {
-            throw new FullSnackSlotException(this.FULL_SLOT_MESSAGE);
+            throw new FullSnackSlotException(ExceptionMessage.FULL_SNACK_SLOT.getMessage());
         }
 
         this.setQuantity(this.getQuantity() + items.length);
@@ -56,7 +52,7 @@ public class SnackSlot {
 
     public void dispenseSnackItem() throws EmptySnackSlotException {
         if (this.quantity == 0) {
-            throw new EmptySnackSlotException(this.EMPTY_SLOT_MESSAGE);
+            throw new EmptySnackSlotException(ExceptionMessage.EMPTY_SNACK_SLOT.getMessage());
         }
 
         this.quantity -= 1;

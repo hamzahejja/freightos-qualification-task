@@ -15,7 +15,7 @@ public enum Note implements Payable {
     private String name;
     private BigDecimal worth;
 
-    private Note(String name, BigDecimal worth) {
+    Note(String name, BigDecimal worth) {
         this.name = name;
         this.worth = worth;
     }
