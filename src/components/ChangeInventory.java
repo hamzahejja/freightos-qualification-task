@@ -59,23 +59,26 @@ public class ChangeInventory {
                 .collect(Collectors.toList());
 
         boolean flag = false;
-        Map<Payable, Integer> changes = new HashMap<Payable, Integer>();
+        Map<Payable, Integer> changes = new HashMap<>();
 
         if (amount.compareTo(BigDecimal.valueOf(0)) > 0) {
             BigDecimal balance = amount;
+
             while (balance.compareTo(BigDecimal.valueOf(0)) > 0) {
                 flag = false;
 
                 for (Payable allowedPayable: ALLOWED_PAYABLES) {
-                    if (balance.compareTo(allowedPayable.getWorth()) >= 0
-                            && this.getCountOfPayable(allowedPayable) - changes.getOrDefault(allowedPayable, 0) > 0) {
-                        changes.put(allowedPayable, changes.getOrDefault(allowedPayable, 0) + 1);
-                        balance = balance.subtract(allowedPayable.getWorth());
+                    if (balance.compareTo(allowedPayable.getWorth()) >= 0 &&
+                            this.getCountOfPayable(allowedPayable) - changes.getOrDefault(allowedPayable, 0) > 0) {
+
                         flag = true;
+                        balance = balance.subtract(allowedPayable.getWorth());
+                        changes.put(allowedPayable, changes.getOrDefault(allowedPayable, 0) + 1);
                         break;
                     }
                 }
-                if (flag == false) {
+
+                if (! flag) {
                     throw new InsufficientChangeException("NotSufficientChange, Please try another product");
                 }
             }
@@ -95,7 +98,7 @@ public class ChangeInventory {
 
     public void reflectInventoryDeductionsForChange(Map<Payable, Integer> change) {
         for (Payable payable: change.keySet()) {
-            this.deduct(payable, change.get(payable).intValue());
+            this.deduct(payable, change.get(payable));
         }
     }
 
