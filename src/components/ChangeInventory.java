@@ -81,20 +81,23 @@ public class ChangeInventory {
 
 
             if (balance.compareTo(BigDecimal.ZERO) > 0) {
-                Payable payable = ALLOWED_PAYABLES.stream().filter(p -> {
-                    BigDecimal[] values = amount.divideAndRemainder(p.getWorth());
-                    return values[1].compareTo(BigDecimal.ZERO) == 0 &&
-                            this.getCountOfPayable(p) == values[0].intValue();
-                }).findFirst().orElse(null);
+                Payable payable = ALLOWED_PAYABLES.stream()
+                        .filter(p -> {
+                            BigDecimal[] values = amount.divideAndRemainder(p.getWorth());
+                            return values[1].compareTo(BigDecimal.ZERO) == 0 &&
+                                    this.getCountOfPayable(p) == values[0].intValue();
+                        })
+                        .findFirst()
+                        .orElse(null);
 
-                if (payable != null) {
-                    change.clear();
-                    change.put(payable, this.getCountOfPayable(payable));
+                if (payable == null) {
+                    throw new InsufficientChangeException(
+                            ExceptionMessage.INSUFFICIENT_CHANGE_IN_INVENTORY.getMessage()
+                    );
                 }
 
-                throw new InsufficientChangeException(
-                        ExceptionMessage.INSUFFICIENT_CHANGE_IN_INVENTORY.getMessage()
-                );
+                change.clear();
+                change.put(payable, this.getCountOfPayable(payable));
             }
         }
 
