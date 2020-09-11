@@ -1,16 +1,16 @@
 package components;
 
-import enumerations.ExceptionMessage;
-import exception.InsufficientChangeException;
+import java.util.Map;
+import java.util.List;
+import java.util.HashMap;
 import interfaces.Payable;
-
 import java.math.BigDecimal;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.LinkedHashMap;
 import java.util.stream.Stream;
+import java.util.stream.Collectors;
+import enumerations.ExceptionMessage;
+import exception.InsufficientChangeException;
 
 public class ChangeInventory {
     private Map<Payable, Integer> inventory;
@@ -55,37 +55,38 @@ public class ChangeInventory {
     }
 
     public Map<Payable, Integer> getChange(BigDecimal amount) throws InsufficientChangeException {
+        Map<Payable, Integer> change = new LinkedHashMap<>();
+
         final List<Payable> ALLOWED_PAYABLES = Stream.concat(NoteSlot.ALLOWED_NOTES.stream(), CoinSlot.ALLOWED_COINS.stream())
                 .sorted(Comparator.comparing(Payable::getWorth).reversed())
                 .collect(Collectors.toList());
 
-        boolean flag = false;
-        Map<Payable, Integer> changes = new HashMap<>();
-
         if (amount.compareTo(BigDecimal.valueOf(0)) > 0) {
             BigDecimal balance = amount;
+            BigDecimal inventoryAvailablePayableCount, calculatedPayableCount;
 
-            while (balance.compareTo(BigDecimal.valueOf(0)) > 0) {
-                flag = false;
+            for (Payable allowedPayable: ALLOWED_PAYABLES) {
+                if (balance.compareTo(allowedPayable.getWorth()) >= 0) {
+                    calculatedPayableCount = balance.divideToIntegralValue(allowedPayable.getWorth());
+                    inventoryAvailablePayableCount = BigDecimal.valueOf(this.getCountOfPayable(allowedPayable));
 
-                for (Payable allowedPayable: ALLOWED_PAYABLES) {
-                    if (balance.compareTo(allowedPayable.getWorth()) >= 0 &&
-                            this.getCountOfPayable(allowedPayable) - changes.getOrDefault(allowedPayable, 0) > 0) {
+                    int minCountAvailable = calculatedPayableCount.compareTo(inventoryAvailablePayableCount) < 0 ?
+                            calculatedPayableCount.intValue():
+                            inventoryAvailablePayableCount.intValue();
 
-                        flag = true;
-                        balance = balance.subtract(allowedPayable.getWorth());
-                        changes.put(allowedPayable, changes.getOrDefault(allowedPayable, 0) + 1);
-                        break;
-                    }
+                    change.put(allowedPayable, minCountAvailable);
+                    balance = balance.subtract(allowedPayable.getWorth().multiply(BigDecimal.valueOf(minCountAvailable)));
                 }
+            }
 
-                if (! flag) {
-                    throw new InsufficientChangeException(ExceptionMessage.INSUFFICIENT_CHANGE_IN_INVENTORY.getMessage());
-                }
+            if (balance.compareTo(BigDecimal.ZERO) > 0) {
+                throw new InsufficientChangeException(
+                        ExceptionMessage.INSUFFICIENT_CHANGE_IN_INVENTORY.getMessage()
+                );
             }
         }
 
-        return changes;
+        return change;
     }
 
     public boolean canProduceChangeForAmount(BigDecimal amount) {
