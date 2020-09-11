@@ -191,13 +191,10 @@ public class IntegrationTests {
     }
 
     public BigDecimal calculateTotalChangeAmount(Map<Payable, Integer> change) {
-        BigDecimal totalChangeAmount = BigDecimal.valueOf(0);
-
-        for (Payable payable: change.keySet()) {
-            totalChangeAmount = totalChangeAmount.add(payable.getWorth().multiply(BigDecimal.valueOf(change.get(payable))));
-        }
-
-        return totalChangeAmount;
+        return change.entrySet()
+                .stream()
+                .map(entry -> BigDecimal.valueOf(entry.getValue()).multiply(entry.getKey().getWorth()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public static void populateSnackSlotsWithInitialItems() {

@@ -37,6 +37,13 @@ public class SnackVendingMachine implements VendingMachine<SnackItem, SnackSlot>
         this.initializeMachine();
     }
 
+    /**
+     * initialization method for the Snack Vending Machine's
+     * attributes/fields including it's rowsCount, colsCount,
+     * boolean flags and components: Keypad, DisplayScreen, NoteSlot,
+     * CoinSlot, CardSlot, ChangeInventory, SnackSlots and finally it's
+     * financial stats/indicators: accumulatedMoney, totalSales.
+     */
     private void initializeMachine() {
         this.rowsCount = 5;
         this.columnsCount = 5;
@@ -179,6 +186,17 @@ public class SnackVendingMachine implements VendingMachine<SnackItem, SnackSlot>
         this.shouldStartProcessingRequest = shouldStartProcessingRequest;
     }
 
+    /**
+     * Processes customer's request/order where he selected a SnackSlot
+     * out of the Machine's 5x5 grid of Snack Slots and if the request is valid,
+     * that is the request is confirmed and SnackSlot selected has items, then
+     * it will return the SnackItem at the front of the selected snack slot.
+     *
+     * @param selectedSnackSlot the customer's selected SnackSlot.
+     * @return the Snack Item which is in the customer's selected SnackSlot
+     * @throws   CustomerRequestNotConfirmedException if customer's request is not confirmed.
+     * @throws  SnackSoldOutException if selected snack slot is out-of-items.
+     */
     public SnackItem processRequestAndReturnSelectedSnackItem(
             SnackSlot selectedSnackSlot
     ) throws CustomerRequestNotConfirmedException, SnackSoldOutException {
@@ -197,7 +215,16 @@ public class SnackVendingMachine implements VendingMachine<SnackItem, SnackSlot>
         return this.currentlySelectedSnackSlot.getItem();
     }
 
-
+    /**
+     * Inserts Payable [Coin, Note or Card] into it's corresponding/matching
+     * MoneySlot on the Snack Vending Machine, validates the entry and then
+     * adds it's worth to the machine's balance (accumulated money) and also
+     * to the Change Inventory of the machine. Finally, it displays the accumulated
+     * money to the customer, to inform him about how much he entered so far.
+     *
+     * @param moneySlot Slot to insert the money in.
+     * @param payable Payable to insert into the corresponding MoneySlot.
+     */
     public void insertMoney(MoneySlot moneySlot, Payable payable) {
         moneySlot.validate(payable);
         this.accumulatedMoney = this.accumulatedMoney.add(payable.getWorth());
@@ -209,6 +236,15 @@ public class SnackVendingMachine implements VendingMachine<SnackItem, SnackSlot>
         return this.refund();
     }
 
+    /**
+     * Dispense the SnackItem at the front of the customer's selected snack slot
+     * iff the selected item is FULLY PAID and the Machine's able to produce the change
+     * that has to be refunded to the customer on successful purchase (if any).
+     *
+     * @return the SnackItem at the front of the customer's selected snack slot.
+     * @throws ItemNotFullyPaidException if balance is less than the selected item's price.
+     * @throws InsufficientChangeException if the machine cannot produce the change that's to be refunded.
+     */
     private SnackItem dispenseSelectedSnackItem() throws ItemNotFullyPaidException, InsufficientChangeException {
         SnackItem selectedSnackItem = this.currentlySelectedSnackSlot.getItem();
 
@@ -224,6 +260,15 @@ public class SnackVendingMachine implements VendingMachine<SnackItem, SnackSlot>
         return selectedSnackItem;
     }
 
+    /**
+     * Calculates change that needs to be refunded/dispensed to
+     * customer upon successful purchase and reflects deductions on
+     * the Snack Vending Machine's internal Change Inventory component.
+     *
+     * @return a map of Payable -> Integer, where:
+     * Payable could be Note, Coin, Slot and
+     * Integer is the count of that certain type of Payable in the inventory.
+     */
     private Map<Payable, Integer> calculateAndDispenseChange() {
         BigDecimal selectedSnackItemPrice = this.currentlySelectedSnackSlot.getItem().getPrice();
         Map<Payable, Integer> change = this.changeInventory.getChange(this.accumulatedMoney.subtract(selectedSnackItemPrice));
@@ -234,6 +279,14 @@ public class SnackVendingMachine implements VendingMachine<SnackItem, SnackSlot>
         return change;
     }
 
+    /**
+     * Dispense the selected snack item and also
+     * the calculated customer change upon successful purchase of snack item.
+     *
+     * @return a Pair of: SnackItem, Map<Payable, Integer> where the Map
+     * represents the change refunded back to the customer upon purchase iff
+     * the inserted money (i.e accumulated money) exceeds the price of selected item.
+     */
     @Override
     public Pair<SnackItem, Map<Payable, Integer>> dispenseSelectedItemAndCustomerChange() {
         try {
@@ -248,6 +301,13 @@ public class SnackVendingMachine implements VendingMachine<SnackItem, SnackSlot>
         }
     }
 
+    /**
+     * Calculates and returns amount to be refunded to customer
+     * upon cancellation of request OR the machine's not being able
+     * to produce customer's change upon successful purchase of item.
+     *
+     * @return Refunded Amount in form of Map<Payable, Integer>
+     */
     @Override
     public Map<Payable, Integer> refund() {
         this.setCurrentlyOperatingState(MachineState.REFUNDING_CUSTOMER_MONEY);
