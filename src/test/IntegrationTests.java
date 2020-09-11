@@ -86,10 +86,9 @@ public class IntegrationTests {
         snackVendingMachine.getChangeInventory().clear();
         snackVendingMachine.setAccumulatedMoney(BigDecimal.valueOf(0));
 
-        snackVendingMachine.getChangeInventory().add(Coin.TEN_CENTS, 3);
-        snackVendingMachine.getChangeInventory().add(Coin.ONE_DOLLAR, 15);
-        snackVendingMachine.getChangeInventory().add(Note.HUNDRED_DOLLARS_BILL, 2);
-        snackVendingMachine.getChangeInventory().add(Note.TWENTY_DOLLARS_BILL, 2);
+        snackVendingMachine.insertMoney(snackVendingMachine.getCoinSlot(), Coin.TEN_CENTS);
+        snackVendingMachine.insertMoney(snackVendingMachine.getCoinSlot(), Coin.FIFTY_CENTS);
+        snackVendingMachine.insertMoney(snackVendingMachine.getCoinSlot(), Coin.TWENTY_FIVE_CENTS);
 
         BigDecimal tempAccumulatedMoney = snackVendingMachine.getAccumulatedMoney(); //BECAUSE REFUND WILL INTERNALLY RESET BALANCE TO 0
         BigDecimal totalRefundedAmount = calculateTotalChangeAmount(snackVendingMachine.cancelRequestAndRefundCustomer());
@@ -163,11 +162,11 @@ public class IntegrationTests {
         snackVendingMachine.setAccumulatedMoney(BigDecimal.valueOf(0));
 
         // TOP-UP CHANGE INVENTORY
-        snackVendingMachine.getChangeInventory().add(Coin.TEN_CENTS, 20);
-        snackVendingMachine.getChangeInventory().add(Coin.ONE_DOLLAR, 20);
-        snackVendingMachine.getChangeInventory().add(Coin.TWENTY_FIVE_CENTS, 20);
-        snackVendingMachine.getChangeInventory().add(Note.HUNDRED_DOLLARS_BILL, 5);
-        snackVendingMachine.getChangeInventory().add(Note.TWENTY_DOLLARS_BILL, 5);
+        snackVendingMachine.getChangeInventory().putPayableWithCount(Coin.TEN_CENTS, 20);
+        snackVendingMachine.getChangeInventory().putPayableWithCount(Coin.ONE_DOLLAR, 20);
+        snackVendingMachine.getChangeInventory().putPayableWithCount(Coin.TWENTY_FIVE_CENTS, 20);
+        snackVendingMachine.getChangeInventory().putPayableWithCount(Note.TWENTY_DOLLARS_BILL, 2);
+        snackVendingMachine.getChangeInventory().putPayableWithCount(Note.HUNDRED_DOLLARS_BILL, 1);
 
         // E2 -> [4][1] -> TURKEY_SANDWICH = 3.5
         int rowIndex = snackVendingMachine.getKeypad().pressButton(Button.E);
