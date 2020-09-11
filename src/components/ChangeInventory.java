@@ -90,13 +90,11 @@ public class ChangeInventory {
                 if (payable != null) {
                     change.clear();
                     change.put(payable, this.getCountOfPayable(payable));
-
-                    return change;
-                } else {
-                    throw new InsufficientChangeException(
-                            ExceptionMessage.INSUFFICIENT_CHANGE_IN_INVENTORY.getMessage()
-                    );
                 }
+
+                throw new InsufficientChangeException(
+                        ExceptionMessage.INSUFFICIENT_CHANGE_IN_INVENTORY.getMessage()
+                );
             }
         }
 
