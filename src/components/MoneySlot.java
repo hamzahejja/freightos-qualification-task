@@ -33,4 +33,6 @@ public abstract class MoneySlot {
     }
 
     public abstract boolean validate(Payable entry) throws InvalidEntryException, UnsupportedPayableTypeException;
+
+    public abstract boolean isSupportedPayableType(Payable payable);
 }
