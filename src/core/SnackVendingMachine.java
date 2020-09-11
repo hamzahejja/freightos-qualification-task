@@ -34,12 +34,16 @@ public class SnackVendingMachine implements VendingMachine<SnackItem, SnackSlot>
     private SnackSlot currentlySelectedSnackSlot;
 
     public SnackVendingMachine() {
+        this.initializeMachine();
+    }
+
+    private void initializeMachine() {
         this.rowsCount = 5;
         this.columnsCount = 5;
         this.isFunctional = true;
         this.initializeSnackSlots();
         this.shouldStartProcessingRequest = false;
-        this.setCurrentlyOperatingState(MachineState.WAITING_CUSTOMER_ENTRY);
+        this.setCurrentlyOperatingState(MachineState.IDLE_WAITING_CUSTOMER_MONEY_ENTRY);
 
         this.keypad = new Keypad(this);
         this.displayScreen = new DisplayScreen();
@@ -74,7 +78,12 @@ public class SnackVendingMachine implements VendingMachine<SnackItem, SnackSlot>
     }
 
     public void setFunctional(boolean functional) {
+        MachineState currentlyOperatingMachineState = functional ?
+                MachineState.IDLE_WAITING_CUSTOMER_MONEY_ENTRY :
+                MachineState.OUT_OF_SERVICE;
+
         isFunctional = functional;
+        this.setCurrentlyOperatingState(currentlyOperatingMachineState);
     }
 
     public Keypad getKeypad() {
@@ -174,7 +183,7 @@ public class SnackVendingMachine implements VendingMachine<SnackItem, SnackSlot>
             SnackSlot selectedSnackSlot
     ) throws CustomerRequestNotConfirmedException, SnackSoldOutException {
         this.currentlySelectedSnackSlot = selectedSnackSlot;
-        this.setCurrentlyOperatingState(MachineState.PROCESSING_CUSTOMER_ENTRY);
+        this.setCurrentlyOperatingState(MachineState.PROCESSING_CUSTOMER_SELECTION);
 
         if (! this.shouldStartProcessingRequest) {
             throw new CustomerRequestNotConfirmedException("Sorry! Did you forget to Confirm Your Selection?");
@@ -188,14 +197,16 @@ public class SnackVendingMachine implements VendingMachine<SnackItem, SnackSlot>
         return this.currentlySelectedSnackSlot.getItem();
     }
 
-    public void insertMoney(MoneySlot moneySlot, Payable payable) {
-        this.setCurrentlyOperatingState(MachineState.VALIDATING_INSERTED_MONEY);
 
+    public void insertMoney(MoneySlot moneySlot, Payable payable) {
         moneySlot.validate(payable);
-        this.setCurrentlyOperatingState(MachineState.ACCEPTED_INSERTED_MONEY);
         this.accumulatedMoney = this.accumulatedMoney.add(payable.getWorth());
         this.changeInventory.add(payable, 1);
         this.printCurrentlyAccumulatedMoney();
+    }
+
+    public Map<Payable, Integer> cancelRequestAndRefundCustomer() {
+        return this.refund();
     }
 
     private SnackItem dispenseSelectedSnackItem() throws ItemNotFullyPaidException, InsufficientChangeException {
@@ -207,7 +218,6 @@ public class SnackVendingMachine implements VendingMachine<SnackItem, SnackSlot>
             throw new InsufficientChangeException("Insufficient Change! Try to select another snack item Please.");
         }
 
-        this.setCurrentlyOperatingState(MachineState.DISPENSING_SELECTED_ITEM);
         this.currentlySelectedSnackSlot.dispenseSnackItem();
         this.salesTotal = this.salesTotal.add(selectedSnackItem.getPrice());
 
@@ -215,16 +225,12 @@ public class SnackVendingMachine implements VendingMachine<SnackItem, SnackSlot>
     }
 
     private Map<Payable, Integer> calculateAndDispenseChange() {
-        this.setCurrentlyOperatingState(MachineState.CALCULATING_CUSTOMER_CHANGE);
-
         BigDecimal selectedSnackItemPrice = this.currentlySelectedSnackSlot.getItem().getPrice();
         Map<Payable, Integer> change = this.changeInventory.getChange(this.accumulatedMoney.subtract(selectedSnackItemPrice));
         this.getChangeInventory().reflectInventoryDeductionsForChange(change);
 
         this.currentlySelectedSnackSlot = null;
         this.accumulatedMoney = BigDecimal.valueOf(0);
-        this.setCurrentlyOperatingState(MachineState.DISPENSING_CUSTOMER_CHANGE);
-
         return change;
     }
 
@@ -234,6 +240,7 @@ public class SnackVendingMachine implements VendingMachine<SnackItem, SnackSlot>
             SnackItem dispensedSnackItem = this.dispenseSelectedSnackItem();
             Map<Payable, Integer> customerChange = this.calculateAndDispenseChange();
             this.printCalculatedCustomerChange(customerChange);
+            this.setCurrentlyOperatingState(MachineState.DISPENSING_SELECTED_ITEM_AND_CUSTOMER_CHANGE);
 
             return new Pair<>(dispensedSnackItem, customerChange);
         } catch (InsufficientChangeException insufficientChangeException) {
@@ -254,8 +261,6 @@ public class SnackVendingMachine implements VendingMachine<SnackItem, SnackSlot>
 
     @Override
     public void resetToInitialState() {
-        this.setCurrentlyOperatingState(MachineState.RESETTING_INITIAL_STATE);
-
         this.clearAllSnackSlots();
         this.displayScreen.clear();
         this.changeInventory.clear();
@@ -266,10 +271,10 @@ public class SnackVendingMachine implements VendingMachine<SnackItem, SnackSlot>
     }
 
     public void clearAllSnackSlots() {
-        for (int rowIndex = 0; rowIndex < this.snackSlots.length; rowIndex++) {
-            for (int colIndex = 0; colIndex < this.snackSlots[rowIndex].length; colIndex++) {
-                this.snackSlots[rowIndex][colIndex].setItem(null);
-                this.snackSlots[rowIndex][colIndex].setQuantity(0);
+        for (SnackSlot[] snackSlot : this.snackSlots) {
+            for (SnackSlot slot : snackSlot) {
+                slot.setItem(null);
+                slot.setQuantity(0);
             }
         }
     }

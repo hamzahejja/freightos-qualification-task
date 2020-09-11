@@ -55,20 +55,20 @@ public class Keypad {
     }
 
     public int pressButton (Button button) {
+        SnackVendingMachine snackVendingMachine = this.getSnackVendingMachine();
+        DisplayScreen displayScreen = snackVendingMachine.getDisplayScreen();
+        displayScreen.appendText(button.getLabel());
+
         if (button.getIndex() == Button.DELETE.getIndex()) {
-            this.getSnackVendingMachine()
-                    .getDisplayScreen()
-                    .delete();
+            displayScreen.delete();
         } else if (button.getIndex() == Button.CLEAR.getIndex()) {
-            this.getSnackVendingMachine()
-                    .getDisplayScreen()
-                    .clear();
+            displayScreen.clear();
         } else if (button.getIndex() == Button.CONFIRM.getIndex()) {
-            this.getSnackVendingMachine()
-                    .setShouldStartProcessingRequest(true);
+            snackVendingMachine.setShouldStartProcessingRequest(true);
         } else if (button.getIndex() == Button.RESET.getIndex()) {
-            this.getSnackVendingMachine()
-                    .resetToInitialState();
+            snackVendingMachine.resetToInitialState();
+        } else if (button.getIndex() == Button.CANCEL.getIndex()) {
+            snackVendingMachine.cancelRequestAndRefundCustomer();
         }
 
         return button.getIndex();

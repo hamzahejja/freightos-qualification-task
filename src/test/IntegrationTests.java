@@ -2,10 +2,7 @@ package test;
 
 import components.*;
 import core.SnackVendingMachine;
-import enumerations.Card;
-import enumerations.Coin;
-import enumerations.Note;
-import enumerations.SnackItem;
+import enumerations.*;
 import exception.ItemNotFullyPaidException;
 import exception.SnackSoldOutException;
 import org.junit.AfterClass;
@@ -85,6 +82,23 @@ public class IntegrationTests {
     }
 
     @Test
+    public void Should_RefundAccumulatedMoneyAsChange_When_CustomerCancelsRequest() {
+        snackVendingMachine.getChangeInventory().clear();
+        snackVendingMachine.setAccumulatedMoney(BigDecimal.valueOf(0));
+
+        snackVendingMachine.getChangeInventory().add(Coin.TEN_CENTS, 3);
+        snackVendingMachine.getChangeInventory().add(Coin.ONE_DOLLAR, 15);
+        snackVendingMachine.getChangeInventory().add(Note.HUNDRED_DOLLARS_BILL, 2);
+        snackVendingMachine.getChangeInventory().add(Note.TWENTY_DOLLARS_BILL, 2);
+
+        BigDecimal tempAccumulatedMoney = snackVendingMachine.getAccumulatedMoney(); //BECAUSE REFUND WILL INTERNALLY RESET BALANCE TO 0
+        BigDecimal totalRefundedAmount = calculateTotalChangeAmount(snackVendingMachine.cancelRequestAndRefundCustomer());
+
+        Assert.assertEquals(0, totalRefundedAmount.compareTo(tempAccumulatedMoney));
+        Assert.assertEquals(MachineState.REFUNDING_CUSTOMER_MONEY.getDescription(), snackVendingMachine.getCurrentlyOperatingState().getDescription());
+    }
+
+    @Test
     public void Should_RefundAccumulatedMoneyAsChange_When_CustomerChangeIsNonProducible() {
         // RESET TO ISOLATE TESTS
         snackVendingMachine.getChangeInventory().clear();
@@ -109,6 +123,7 @@ public class IntegrationTests {
 
         Assert.assertNull(result.getFirst());
         Assert.assertEquals(0, totalRefundedAmount.compareTo(tempAccumulatedMoney));
+        Assert.assertEquals(MachineState.REFUNDING_CUSTOMER_MONEY.getDescription(), snackVendingMachine.getCurrentlyOperatingState().getDescription());
     }
 
     @Test

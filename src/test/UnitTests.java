@@ -101,12 +101,21 @@ public class UnitTests {
         Assert.assertNull(snackVendingMachine.getCurrentlySelectedSnackSlot());
         Assert.assertEquals(0, snackVendingMachine.getSalesTotal().compareTo(BigDecimal.ZERO));
         Assert.assertEquals(0, snackVendingMachine.getAccumulatedMoney().compareTo(BigDecimal.ZERO));
-        Assert.assertEquals(MachineState.RESETTING_INITIAL_STATE, snackVendingMachine.getCurrentlyOperatingState());
+        Assert.assertTrue(
+                Arrays.stream(snackVendingMachine.getSnackSlots()).allMatch(
+                        slots -> Arrays.stream(slots).allMatch(s -> s.getQuantity() == 0 && s.getItem() == null)
+                )
+        );
+    }
 
-        boolean hasEmptySnackSlots =  Arrays.stream(snackVendingMachine.getSnackSlots())
-                .allMatch(slots -> Arrays.stream(slots).allMatch(s -> s.getQuantity() == 0 && s.getItem() == null));
+    @Test
+    public void Should_HaveOperatingStateSetToOutOfService_When_SnackVendingMachineIsNotFunctional() {
+        snackVendingMachine.setFunctional(false);
 
-        Assert.assertTrue(hasEmptySnackSlots);
+        Assert.assertEquals(
+                MachineState.OUT_OF_SERVICE.getDescription(),
+                snackVendingMachine.getCurrentlyOperatingState().getDescription()
+        );
     }
 
 

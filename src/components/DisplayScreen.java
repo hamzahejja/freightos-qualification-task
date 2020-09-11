@@ -18,8 +18,8 @@ public class DisplayScreen {
         this.display();
     }
 
-    public void append(char c) {
-        this.textBuilder.append(c);
+    public void appendText(String text) {
+        this.textBuilder.append(text);
         this.display();
     }
 
